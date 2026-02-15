@@ -217,7 +217,7 @@
                         <tr>
                           <td>{{ asset.name }}</td>
                           <td>{{ asset.get_asset_type_display }}</td>
-                          <td>${{ asset.cost }}</td>
+                          <td>₱{{ asset.cost }}</td>
                           <td>
                             {% if asset.assigned_to %}
                               {{ asset.assigned_to.username }}
@@ -225,7 +225,7 @@
                               <span style="color:red">Unassigned</span>
                             {% endif %}
                           </td>
-                          <td>${{ asset.repair_total|floatformat:2 }}</td>
+                          <td>₱{{ asset.repair_total|floatformat:2 }}</td>
                           <td>{{ asset.created_at|date:"M d, Y" }}</td>
                           <td>
                             <div class="d-flex align-items-center">
