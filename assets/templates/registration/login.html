@@ -1,10 +1,57 @@
 {% extends "assets/base.html" %}
 
+{% block stylesheets %}
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/pages/page-auth.css' %}">
+{% endblock stylesheets %}
+
 {% block content %}
-    <h1>Login</h1>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-primary">Login</button>
-    </form>
+  <div class="container-xxl">
+    <div class="authentication-wrapper authentication-basic container-p-y">
+      <div class="authentication-inner">
+        <!-- Login -->
+        <div class="card px-sm-6 px-0">
+          <div class="card-body">
+            <h4 class="mb-1">Welcome to Login! 👋</h4>
+            <p class="mb-6">Please sign-in to your account and start the adventure.</p>
+
+            <form id="formAuthentication" class="mb-6" method="POST">
+              {% csrf_token %}
+
+              <div class="mb-6">
+                <label for="username" class="form-label">Username</label>
+                {{ form.username }}
+              </div>
+
+              <div class="mb-6 form-password-toggle">
+                <label class="form-label" for="password">Password</label>
+                <div class="input-group input-group-merge">
+                  {{ form.password }}
+                  <span class="input-group-text cursor-pointer" id="togglePassword1">
+                    <i class="icon-base bx bx-hide"></i>
+                  </span>
+                </div>
+              </div>
+
+              <div class="mb-6">
+                <button class="btn btn-primary d-grid w-100" type="submit">Login</button>
+              </div>
+            </form>
+            <p class="text-center">
+              <span>New on our platform?</span>
+              <a href="{% url 'register' %}">
+                <span>Create an account</span>
+              </a>
+            </p>
+          </div>
+        </div>
+        <!-- /Login -->
+      </div>
+    </div>
+  </div>
 {% endblock %}
+
+{% block scripts %}
+  {% load static %}
+  <script src="{% static 'js/pages/authentication.js' %}"></script>
+{% endblock scripts %}

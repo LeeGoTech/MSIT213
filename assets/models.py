@@ -1,6 +1,14 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.db.models import Sum
+from django.utils import timezone
+
+# TOPIC 0: Basic Relational Models
+class Department(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.name
 
 # TOPIC 1: Custom User Models
 class User(AbstractUser):
@@ -8,6 +16,13 @@ class User(AbstractUser):
     Custom user model to allow for future expansion (e.g., adding Department fields).
     """
     is_manager = models.BooleanField(default=False)
+    department = models.ForeignKey(
+        Department,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='users',
+    )
 
 # TOPIC 2: Abstract Base Classes (Code Reuse)
 class TimeStampedModel(models.Model):
@@ -40,3 +55,17 @@ class Asset(TimeStampedModel):
     
     def __str__(self):
         return f"{self.name} ({self.get_asset_type_display()})"
+
+# TOPIC 6: One-to-Many Relationships
+class MaintenanceLog(models.Model):
+    asset = models.ForeignKey(
+        Asset,
+        on_delete=models.CASCADE,
+        related_name='maintenance_logs',
+    )
+    description = models.TextField()
+    cost = models.DecimalField(max_digits=10, decimal_places=2)
+    date_repaired = models.DateField(default=timezone.now)
+
+    def __str__(self):
+        return f"{self.asset.name} maintenance on {self.date_repaired}"

@@ -1,10 +1,95 @@
 {% extends "assets/base.html" %}
 
+{% block stylesheets %}
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/pages/page-auth.css' %}">
+{% endblock stylesheets %}
+
 {% block content %}
-    <h1>Sign Up</h1>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-primary">Register</button>
-    </form>
+  <div class="container-xxl">
+    <div class="authentication-wrapper authentication-basic container-p-y">
+      <div class="authentication-inner">
+        <!-- Register -->
+        <div class="card px-sm-6 px-0">
+          <div class="card-body">
+            <h4 class="mb-1">Welcome to Register! 👋</h4>
+            <p class="mb-6">Please register your account and start the adventure.</p>
+						{% if form.errors %}
+							<div class="alert alert-warning d-flex align-items-center" role="alert">
+								<i class="bx bx-alert-circle me-2"></i>
+
+								{# Prefer password errors if present #}
+								{% if form.username.errors %}
+									{{ form.username.errors|join:" " }}
+								{% elif form.email.errors %}
+									{{ form.email.errors|join:" " }}
+								{% elif form.password1.errors %}
+									{{ form.password1.errors|join:" " }}
+								{% elif form.password2.errors %}
+									{{ form.password2.errors|join:" " }}
+								{% elif form.non_field_errors %}
+									{{ form.non_field_errors|join:" " }}
+								{% else %}
+									Please check your inputs and try again.
+								{% endif %}
+							</div>
+						{% endif %}
+
+            <form id="formAuthentication" class="mb-6" method="POST">
+							{% csrf_token %}
+
+							<div class="mb-6">
+									<label for="username" class="form-label">Username</label>
+									{{ form.username }}
+							</div>
+
+							<div class="mb-6">
+									<label for="email" class="form-label">Email address</label>
+									{{ form.email }}
+							</div>
+
+							<div class="mb-6 form-password-toggle">
+									<label class="form-label" for="password">Password</label>
+									<div class="input-group input-group-merge">
+									{{ form.password1 }}
+									<span class="input-group-text cursor-pointer" id="togglePassword1">
+											<i class="icon-base bx bx-hide"></i>
+									</span>
+									</div>
+							</div>
+
+							<div class="mb-6 form-password-toggle">
+									<label class="form-label" for="confirm_password">Confirm Password</label>
+									<div class="input-group input-group-merge">
+									{{ form.password2 }}
+									<span class="input-group-text cursor-pointer" id="togglePassword2">
+											<i class="icon-base bx bx-hide"></i>
+									</span>
+									</div>
+							</div>
+
+							<div class="mb-6">
+									<button class="btn btn-primary d-grid w-100" type="submit">
+									Register
+									</button>
+							</div>
+
+            </form>
+            <p class="text-center">
+              <span>Already have an account?</span>
+              <a href="{% url 'login' %}">
+                <span>Login here</span>
+              </a>
+            </p>
+          </div>
+        </div>
+        <!-- /Register -->
+      </div>
+    </div>
+  </div>
 {% endblock %}
+
+{% block scripts %}
+  {% load static %}
+  <script src="{% static 'js/pages/authentication.js' %}"></script>
+{% endblock scripts %}
