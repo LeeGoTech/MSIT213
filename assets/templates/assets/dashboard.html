@@ -3,6 +3,7 @@
 {% block stylesheets %}
   {% load static %}
   <link rel="stylesheet" href="{% static 'css/libs/apex-charts.css' %}">
+  <link rel="stylesheet" href="{% static 'css/pages/demo.css' %}">
 {% endblock stylesheets %}
 
 
@@ -22,7 +23,7 @@
           </div>
 
           <div class="layout-menu-toggle navbar-nav align-items-xl-center me-4 me-xl-0 d-xl-none">
-            <a class="nav-item nav-link px-0 me-xl-6" href="javascript:void(0)">
+            <a id="navbar-toggler" class="nav-item nav-link px-0 me-xl-6" href="javascript:void(0)">
               <i class="icon-base bx bx-menu icon-md"></i>
             </a>
           </div>
@@ -94,12 +95,44 @@
               <ul class="menu-inner py-1">
                 <!-- Page -->
                 <li class="menu-item active">
-                  <a href="index.html" class="menu-link">
+                  <a href="/" class="menu-link">
                     <i class="menu-icon icon-base bx bx-home-smile"></i>
                     <div data-i18n="Dashboard">Dashboard</div>
                   </a>
                 </li>
               </ul>
+            </div>
+          </aside>
+          <aside id="layout-menu" class="layout-menu menu menu-vertical null d-flex d-xl-none sidebar">
+            <div class="container-xxl d-flex h-100 flex-column p-0">    
+              <a href="#" class="menu-horizontal-prev d-none"></a>
+                <div class="navbar-brand app-brand demo d-xl-flex py-0 me-4">
+                  <a href="index.html" class="app-brand-link gap-2">
+                  <span class="app-brand-logo demo">
+                    <span class="text-primary">
+                      <a href="#" class="app-brand-link gap-2 cursor-pointer">
+                        <img src="{% static 'images/EVSU.png' %}" alt="EVSU" style="width: 40px;">
+                      </a>
+                    </span>
+                  </span>
+                  <span class="app-brand-text demo menu-text fw-bold text-heading"></span>
+                </a>
+
+                <a id="navbar-close" href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-xl-none">
+                  <i class="icon-base bx bx-chevron-left d-flex align-items-center justify-content-center"></i>
+                </a>
+              </div>
+              <ul class="menu-inner py-1 ps overflow-auto" style="margin-left: 0px;">
+                <!-- Page -->
+                <li class="menu-item active">
+                  <a href="/" class="menu-link">
+                    <i class="menu-icon icon-base bx bx-home-smile"></i>
+                    <div data-i18n="Dashboard">Dashboard</div>
+                  </a>
+                </li>
+              </ul>
+              <div class="menu-horizontal-wrapper"></div>
+              <a href="#" class="menu-horizontal-next d-none"></a>
             </div>
           </aside>
           <!-- / Menu -->
@@ -201,7 +234,14 @@
                 <div class="card">
                   <div class="d-flex card-header align-items-center justify-content-between">
                     <h5 class="m-0">Corporate Assets</h5>
-                    <button type="button" id="openModalBtn" class="btn btn-primary"><i class="bx bx-plus me-2"></i>Create</button>
+                    <div class="d-flex align-items-center gap-2">
+                      <a href="{% url 'export-assets-csv' %}" class="btn btn-outline-primary">
+                        <i class="bx bx-download"></i><span class="ms-2 d-none d-md-block">Export to CSV</span>
+                      </a>
+                      <button type="button" id="openModalBtn" class="btn btn-primary">
+                        <i class="bx bx-plus"></i><span class="ms-2 d-none d-md-block">Create</span>
+                      </button>
+                    </div>
                   </div>
                   <div class="table-responsive text-nowrap">
                     <table class="table">
@@ -216,7 +256,7 @@
                           <th>Actions</th>
                         </tr>
                       </thead>
-                      <tbody class="table-border-bottom-0">
+                      <tbody>
                         {% for asset in assets %}
                         <tr>
                           <td>{{ asset.name }}</td>
@@ -255,10 +295,43 @@
                             </div>
                           </td>
                         </tr>
+                        {% empty %}
+                        <tr>
+                          <td colspan="7" class="text-center py-4 text-muted">No assets found.</td>
+                        </tr>
                         {% endfor %}
                       </tbody>
                     </table>
                   </div>
+                  {% if assets.has_other_pages %}
+                  <div class="card-footer">
+                    <nav aria-label="Corporate assets pagination">
+                      <ul class="pagination justify-content-end mb-0">
+                        <li class="page-item {% if not assets.has_previous %}disabled{% endif %}">
+                          {% if assets.has_previous %}
+                          <a class="page-link" href="?page={{ assets.previous_page_number }}"><i class="icon-base bx bx-chevron-left icon-sm"></i></a>
+                          {% else %}
+                          <span class="page-link"><i class="icon-base bx bx-chevron-left icon-sm"></i></span>
+                          {% endif %}
+                        </li>
+
+                        {% for num in assets.paginator.page_range %}
+                        <li class="page-item {% if assets.number == num %}active{% endif %}">
+                          <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                        </li>
+                        {% endfor %}
+
+                        <li class="page-item {% if not assets.has_next %}disabled{% endif %}">
+                          {% if assets.has_next %}
+                          <a class="page-link" href="?page={{ assets.next_page_number }}"><i class="icon-base bx bx-chevron-right icon-sm"></i></a>
+                          {% else %}
+                          <span class="page-link"><i class="icon-base bx bx-chevron-right icon-sm"></i></span>
+                          {% endif %}
+                        </li>
+                      </ul>
+                    </nav>
+                  </div>
+                  {% endif %}
                 </div>
               </div>
             </div>

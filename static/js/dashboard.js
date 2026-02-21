@@ -47,6 +47,24 @@ document.addEventListener('DOMContentLoaded', function (e) {
   }
 
   /**
+  * Navbar toggler when on mobile/tablet
+  */
+  const toggler = document.getElementById("navbar-toggler");
+  if (toggler) {
+    toggler.addEventListener("click", function () {
+      document.documentElement.classList.add("layout-menu-expanded");
+    });
+  }
+
+  const closeBtn = document.getElementById("navbar-close");
+  if (closeBtn) {
+    closeBtn.addEventListener("click", function (e) {
+      e.preventDefault();
+      document.documentElement.classList.remove("layout-menu-expanded");
+    });
+  }
+
+  /**
   * Generic modal helper (Bootstrap-style, no Bootstrap JS plugin)
   */
   function makeModalController(modalId, opts = {}) {

@@ -1,9 +1,14 @@
+import csv
+
+from django.http import HttpResponse
 from django.views import View
 from django.views.generic import ListView, TemplateView, CreateView, DeleteView
 from django.urls import reverse_lazy
 from django.db.models import Sum, Count, DecimalField, Value
 from django.db.models.functions import Coalesce
+from django.core.paginator import Paginator
 from django.contrib.auth import logout
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
@@ -99,7 +104,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             .order_by("name")
         )
 
-        context["assets"] = (
+        assets_queryset = (
             Asset.objects.select_related("assigned_to")
             .annotate(
                 repair_total=Coalesce(
@@ -110,6 +115,13 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             )
             .order_by("-created_at")
         )
+        paginator = Paginator(assets_queryset, 5)
+        page_number = self.request.GET.get("page")
+        assets_page = paginator.get_page(page_number)
+
+        context["assets"] = assets_page
+        context["page_obj"] = assets_page
+        context["is_paginated"] = assets_page.has_other_pages()
 
         context["asset_form"] = AssetForm()
 
@@ -123,6 +135,7 @@ class AssetListView(LoginRequiredMixin, ListView):
     model = Asset
     template_name = "assets/asset_list.html"
     context_object_name = "assets"
+    paginate_by = 5
 
     def get_queryset(self):
         # Optimization: Use select_related to fetch the 'assigned_to' User
@@ -136,8 +149,30 @@ class AssetListView(LoginRequiredMixin, ListView):
                     output_field=DecimalField(max_digits=10, decimal_places=2),
                 )
             )
-            .all()
+            .order_by("-created_at")
         )
+
+
+@login_required
+def export_assets_csv(request):
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = 'attachment; filename="asset_report.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(["Asset Name", "Type", "Cost", "Assigned User"])
+
+    assets = Asset.objects.select_related("assigned_to").order_by("name")
+    for asset in assets:
+        writer.writerow(
+            [
+                asset.name,
+                asset.get_asset_type_display(),
+                asset.cost,
+                asset.assigned_to.username if asset.assigned_to else "Unassigned",
+            ]
+        )
+
+    return response
 
 class MaintenanceCreateView(ManagerRequiredMixin, CreateView):
     model = MaintenanceLog
